@@ -16,12 +16,12 @@ packages on the root file system.
 
 ## Bootstrap script
 
-The bootstrap script aspecialy created for autotools install automation
+The **bootstrap** script aspecialy created for autotools install automation
 To install autotools into source directory on build machine (i.e. when
-*build == host*) the bootstrap script can be run without arguments. In this
+`build == host`) the bootstrap script can be run without arguments. In this
 case autotools will be installed from current root file system.
 
-For the cross environment the *--target-dest-dir* options allows to install
+For the cross environment the `--target-dest-dir` options allows to install
 some stuf from development root file system:
 
 ```Bash
@@ -29,8 +29,8 @@ $ TARGET_DEST_DIR=/home/developer/prog/trunk-672/dist/.s9xx-glibc/enybox-x2 \
   ./bootstrap --target-dest-dir=${TARGET_DEST_DIR}
 ```
 
-For example, in this case the dialog.m4 script will be taken from the
-${TARGET_DEST_DIR}/usr/share/aclocal directory.
+For example, in this case the **dialog.m4** script will be taken from the
+`${TARGET_DEST_DIR}/usr/share/aclocal` directory.
 
 
 ## Install
@@ -44,16 +44,16 @@ $ cd build
 $ ../pkgtools-0.0.9/configure --prefix=/usr
 $ make
 $ make install DESTDIR=$PKG exec_prefix=/
-
-Note that the exec_prefix=/ used for canonical installation of
-pkgtools utilities into ${DESTDIR}/sbin directory instead of
-${DESTDIR}/usr/sbin/ which is not corresponds to FHS.
 ```
+
+Note that the `exec_prefix=/` used for canonical installation of
+pkgtools utilities into `${DESTDIR}/sbin/` directory instead of
+`${DESTDIR}/usr/sbin/` which is not corresponds to **FHS**.
 
 
 ## Configurations
 
-Pkgtools support OpenPGP signing of packages and also simple
+Pkgtools support **OpenPGP** signing of packages and also simple
 user interface based on dialog library.
 
 #### OpenPGP support options:
@@ -64,7 +64,7 @@ user interface based on dialog library.
   --with-gpg2=${TARGET_DEST_DIR}/usr
 ```
 
-If the *--with-gpg2* option is not specified then dialog support
+If the `--with-gpg2` option is not specified then dialog support
 is disabled.
 
 #### Dialog options:
@@ -77,7 +77,7 @@ is disabled.
   --with-dialog-test=yes
 ```
 
-Dialog support is enabled by default. The option *--with-dialog=no*
+Dialog support is enabled by default. The option `--with-dialog=no`
 disables the dialog support.
 
 
@@ -125,11 +125,11 @@ CPPFLAGS="${TARGET_INCPATH}"
 
 ## [Dialog](https://invisible-island.net/dialog/dialog.html)
 
-The original dialog sources have some bugs such as memory leaks and also
-the dialog package doesn't have correct autotools scripts. If you want to
-use libdialog with pkgtools then you have to install the dialog package
+The original **dialog** sources have some bugs such as memory leaks and also
+the **dialog** package doesn't have correct autotools scripts. If you want to
+use `libdialog` with **pkgtools** then you have to install the dialog package
 with our [patch](doc/dialog/dialog-1.3-20190211.patch). This patch provides
-*dialog.m4* and more convenient *dialog-config* script for
+**dialog.m4** and more convenient `dialog-config` script for
 [dialog-1.3-20190211.tgz](ftp://ftp.invisible-island.net/dialog/dialog-1.3-20190211.tgz)
 source package.
 
