@@ -48,7 +48,8 @@ $ make install DESTDIR=$PKG exec_prefix=/
 
 Note that the **exec_prefix=/** used for canonical installation of
 pkgtools utilities into **${DESTDIR}/sbin/** directory instead of
-**${DESTDIR}/usr/sbin/** which is not corresponds to **FHS**.
+**${DESTDIR}/usr/sbin/** which is not corresponds to
+[**FHS**](https://refspecs.linuxfoundation.org/FHS_3.0/fhs-3.0.pdf).
 
 
 ## Configurations
