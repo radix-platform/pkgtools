@@ -56,7 +56,7 @@ ${DESTDIR}/usr/sbin/ which is not corresponds to FHS.
 Pkgtools support OpenPGP signing of packages and also simple
 user interface based on dialog library.
 
-##### OpenPGP support options:
+#### OpenPGP support options:
 
 ```Bash
   --with-gpg2=no
@@ -67,7 +67,7 @@ user interface based on dialog library.
 If the *--with-gpg2* option is not specified then dialog support
 is disabled.
 
-##### Dialog options:
+#### Dialog options:
 
 ```Bash
   --with-dialog=no
@@ -81,7 +81,7 @@ Dialog support is enabled by default. The option *--with-dialog=no*
 disables the dialog support.
 
 
-##### Distribution options:
+#### Distribution options:
 
 ```Bash
   --with-distro-name[=NAME]        The name of distribution
@@ -139,7 +139,7 @@ source package.
 Code and documentation copyright 2009-2019 Andrey V. Kosteltsev.<br/>
 Code and documentation released under [the **Radix.pro** License](LICENSE).
 
-**The text of this license can be found on our website at:**
+#### The text of this license can be found on our website at:
 
 > [https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-en_US.txt)<br/>
 > [https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-ru_RU.txt)
