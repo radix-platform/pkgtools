@@ -56,7 +56,7 @@ ${DESTDIR}/usr/sbin/ which is not corresponds to FHS.
 Pkgtools support OpenPGP signing of packages and also simple
 user interface based on dialog library.
 
-### OpenPGP support options:
+##### OpenPGP support options:
 
 ```Bash
   --with-gpg2=no
@@ -67,7 +67,7 @@ user interface based on dialog library.
 If the *--with-gpg2* option is not specified then dialog support
 is disabled.
 
-### Dialog options:
+##### Dialog options:
 
 ```Bash
   --with-dialog=no
@@ -81,7 +81,7 @@ Dialog support is enabled by default. The option *--with-dialog=no*
 disables the dialog support.
 
 
-### Distribution options:
+##### Distribution options:
 
 ```Bash
   --with-distro-name[=NAME]        The name of distribution
@@ -111,9 +111,11 @@ CC="${TOOLCHAIN_PATH}/${TARGET}-gcc --sysroot=${TARGET_DEST_DIR}" \
   --with-gpg2=${TARGET_DEST_DIR}/usr \
   --with-dialog=${TARGET_DEST_DIR}/usr \
   --with-dialog-test=yes
+```
 
-Also we can make use of additional variables such as CFLAGS, LDFLAGS:
+Also we can make use of additional variables such as **CFLAGS**, **LDFLAGS**:
 
+```Bash
 LDFLAGS="-L${TARGET_DEST_DIR}/lib -L${TARGET_DEST_DIR}/usr/lib"
 TARGET_INCPATH="-L${TARGET_DEST_DIR}/usr/include"
 CFLAGS="${TARGET_INCPATH}"
