@@ -121,7 +121,7 @@ CPPFLAGS="${TARGET_INCPATH}"
 ```
 
 
-## Dialog
+## [Dialog](https://invisible-island.net/dialog/dialog.html)
 
 The original dialog sources have some bugs such as memory leaks and also
 the dialog package doesn't have correct autotools scripts. If you want to
