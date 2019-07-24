@@ -137,9 +137,8 @@ source package.
 Code and documentation copyright 2009-2019 Andrey V. Kosteltsev.
 Code and documentation released under [the **Radix.pro** License](LICENSE).
 
-<dl>
- <dt>The text of this license can be found on our website at:</dt>
+### The text of this license can be found on our website at:
 
- <dd>[https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-en_US.txt)</dd>
- <dd>[https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-ru_RU.txt)</dd>
-</dl>
+[https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-en_US.txt)
+
+[https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-ru_RU.txt)
