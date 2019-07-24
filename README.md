@@ -139,5 +139,5 @@ Code and documentation released under [the **Radix.pro** License](LICENSE).
 
 ### The text of this license can be found on our website at:
 
-[https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-en_US.txt)
+[https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-en_US.txt)<br/>
 [https://radix.pro/licenses/LICENSE-1.0-en_US.txt](https://radix.pro/licenses/LICENSE-1.0-ru_RU.txt)
