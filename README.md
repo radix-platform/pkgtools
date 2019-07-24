@@ -1,7 +1,7 @@
 
-# [Pkgtools](https://radix.pro/build-system/pkgtool/)
+# [Package Tools](https://radix.pro/build-system/pkgtool/)
 
-**Pkgtools** is a set of utilities to create, install, remove, and update
+**pkgtools** is a set of programs to create, install, remove, and update
 packages on the root file system.
 
 ## Table of contents
