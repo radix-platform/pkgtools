@@ -204,7 +204,8 @@ void usage()
   fprintf( stdout, "                                process using ncurses dialog.\n" );
   fprintf( stdout, "  -m,--menu-dialog              Ask for confirmation the inatallation.\n" );
 #endif
-  fprintf( stdout, "  --parallel                    Parallel.\n" );
+  fprintf( stdout, "  --parallel                    Parallel installation (dangerous; required the\n" );
+  fprintf( stdout, "                                checking of DB integrity after installation).\n" );
   fprintf( stdout, "  --progress                    Show progress bar instead of packages information.\n" );
 
   fprintf( stdout, "  -p,--priority=<required|recommended|optional|all>\n" );
