@@ -1532,7 +1532,6 @@ static void check_package( void )
       /* Package is not installed. Continue the installation. */
       break;
     case 31:
-      fprintf( stdout, "\nPackage '%s-%s' is already installed.\n\n", pkgname, pkgver );
       if( install_mode != CONSOLE )
       {
 #if defined( HAVE_DIALOG )
