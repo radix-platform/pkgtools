@@ -68,7 +68,7 @@
 
 #include <defs.h>
 
-#define WAIT_USEC_FOR_CHILD 30000
+#define WAIT_USEC_FOR_CHILD 10000
 
 char *program = PROGRAM_NAME;
 char *root = NULL, *srcdir = NULL, *pkglist_fname = NULL,
@@ -143,6 +143,27 @@ static void free_packages( void );
   End of package structures and declarations.
  *********************************************/
 
+/*********************************************
+  Return status declarations:
+ */
+struct pkgrc
+{
+  pid_t  pid;
+  int    status;
+  char  *name;
+  char  *version;
+  char  *group;
+};
+
+struct dlist *pkgrcl = NULL; /* list of pkgrc structs */
+
+static void          free_pkgrcl( void );
+static struct pkgrc *find_pkgrc( struct dlist *list, pid_t pid );
+/*
+  End of return status declarations.
+ *********************************************/
+
+
 void free_resources()
 {
   if( root )           { free( root );           root           = NULL; }
@@ -151,6 +172,7 @@ void free_resources()
 
   if( requires ) free_requires();
   if( packages ) free_packages();
+  if( pkgrcl )   free_pkgrcl();
 
   if( curdir )         { free( curdir );         curdir         = NULL; }
   if( selfdir )        { free( selfdir );        selfdir        = NULL; }
@@ -442,31 +464,32 @@ void sigchld( int signum )
 
   while( (pid = waitpid( -1, &status, WNOHANG )) > 0 )
   {
-    ; /* One of children with 'pid' is terminated */
+    struct pkgrc *pkgrc = find_pkgrc( pkgrcl, pid );
+
+    ++__terminated; /* One of children with 'pid' is terminated */
 
     if( WIFEXITED( status ) )
     {
-      if( (int) WEXITSTATUS (status) > 0 )
+      if( (int)WEXITSTATUS( status ) > 0 )
       {
         ++exit_status; /* printf( "Child %d returned non zero status: %d\n", pid, (int)WEXITSTATUS (status) ); */
-        ++__terminated;
+        if( pkgrc ) pkgrc->status = (int)WEXITSTATUS (status);
       }
       else
       {
-        ; /* printf( "Child %d terminated with status: %d\n", pid, (int)WEXITSTATUS (status) ); */
-        ++__terminated;
-        ++__successful;
+        ++__successful; /* printf( "Child %d terminated with status: %d\n", pid, (int)WEXITSTATUS (status) ); */
+        if( pkgrc ) pkgrc->status = (int)WEXITSTATUS (status);
       }
     }
     else if( WIFSIGNALED( status ) )
     {
-      ++exit_status; /* printf( "Child %d terminated on signal: %d\n", pid,  WTERMSIG( status ) ); */
-      ++__terminated;
+      ++exit_status; /* printf( "Child %d terminated on signal: %d\n", pid, WTERMSIG( status ) ); */
+      if( pkgrc ) pkgrc->status = 253;
     }
     else
     {
       ++exit_status; /* printf( "Child %d terminated on unknown reason\n", pid ); */
-      ++__terminated;
+      if( pkgrc ) pkgrc->status = 254;
     }
 
   }
@@ -1075,6 +1098,117 @@ static void add_package( struct package *package )
  *********************************************/
 
 
+/*********************************************
+  Return status functions:
+ */
+static struct pkgrc *pkgrc_alloc( void )
+{
+  struct pkgrc *pkgrc = NULL;
+
+  pkgrc = (struct pkgrc *)malloc( sizeof( struct pkgrc ) );
+  if( !pkgrc ) { FATAL_ERROR( "Cannot allocate memory" ); }
+  bzero( (void *)pkgrc, sizeof( struct pkgrc ) );
+
+  return pkgrc;
+}
+
+static void pkgrc_free( struct pkgrc *pkgrc )
+{
+  if( pkgrc )
+  {
+    if( pkgrc->name )    { free( pkgrc->name );    pkgrc->name    = NULL; }
+    if( pkgrc->version ) { free( pkgrc->version ); pkgrc->version = NULL; }
+    if( pkgrc->group )   { free( pkgrc->group );   pkgrc->group   = NULL; }
+
+    free( pkgrc );
+  }
+}
+
+static void __pkgrc_free_func( void *data, void *user_data )
+{
+  struct pkgrc *pkgrc = (struct pkgrc *)data;
+  if( pkgrc ) { pkgrc_free( pkgrc ); }
+}
+
+static void free_pkgrcl( void )
+{
+  if( pkgrcl ) { dlist_free( pkgrcl, __pkgrc_free_func ); pkgrcl = NULL; }
+}
+
+static void add_pkgrc( struct pkgrc *pkgrc )
+{
+  pkgrcl = dlist_append( pkgrcl, (void *)pkgrc );
+}
+
+static struct pkgrc *find_pkgrc( struct dlist *list, pid_t pid )
+{
+  if( !list ) return NULL;
+
+  while( list && list->data )
+  {
+    if( ((struct pkgrc *)list->data)->pid == pid ) { return (struct pkgrc *)list->data; }
+    list = dlist_next( list );
+  }
+
+  return NULL;
+}
+
+static void __remove_success_pkgrc( void *data, void *user_data )
+{
+  struct pkgrc *pkgrc = (struct pkgrc *)data;
+
+  if( pkgrc && pkgrc->status == 0 )
+  {
+    pkgrcl = dlist_remove( pkgrcl, (const void *)data );
+    pkgrc_free( pkgrc );
+  }
+}
+
+static void cleanup_pkgrcl( void )
+{
+  dlist_foreach( pkgrcl, __remove_success_pkgrc, NULL );
+}
+
+static void _print_pkgrcl( void *data, void *user_data )
+{
+  struct pkgrc *pkgrc = (struct pkgrc *)data;
+
+  if( pkgrc )
+  {
+    if( pkgrc->group )
+      fprintf( stdout, "    %5d | %s/%s-%s\n", pkgrc->status, pkgrc->group, pkgrc->name, pkgrc->version );
+    else
+      fprintf( stdout, "    %5d | %s-%s\n", pkgrc->status, pkgrc->name, pkgrc->version );
+  }
+}
+
+static void print_pkgrcl( void )
+{
+  if( pkgrcl )
+  {
+    /*************************************************
+      Ruler: 68 characters + 2 spaces left and right:
+
+                    | ----handy-ruler----------------------------------------------------- | */
+    fprintf( stdout, "The install procedure of following packages has returned bad status:\n\n" );
+
+    fprintf( stdout, "  --------+-------------------------------------------------------\n" );
+    fprintf( stdout, "   status | package\n" );
+    fprintf( stdout, "  --------+-------------------------------------------------------\n" );
+
+    dlist_foreach( pkgrcl, _print_pkgrcl, NULL );
+
+    fprintf( stdout, "  --------+-------------------------------------------------------\n\n" );
+
+    fprintf( stdout, "   status 253 - install process terminated on signal;\n"
+                     "   status 254 - terminated on unknown reason.\n\n" );
+  }
+}
+/*
+  End of return status functions.
+ *********************************************/
+
+
 /*******************************
   remove spaces at end of line:
  */
@@ -1536,7 +1670,15 @@ static void install_package( struct package *package )
   }
   if( parallel )
   {
-    (void)sys_exec_command( cmd );
+    struct pkgrc *pkgrc = pkgrc_alloc();
+
+    pkgrc->name    = strdup( (const char *)package->name );
+    pkgrc->version = strdup( (const char *)package->version );
+    if( package->group )
+      pkgrc->group = strdup( (const char *)package->group );
+    pkgrc->pid     = sys_exec_command( cmd );
+
+    add_pkgrc( pkgrc );
     ++__child;
   }
   else
@@ -1591,7 +1733,7 @@ static void *install_process( void *args )
 {
   struct dlist *list = packages, *next = NULL;
 
-  int nstreams = ncpus; /* one concurents for CPU */
+  int nstreams = ncpus * 2; /* two concurents for CPU */
 
   while( list )
   {
@@ -1848,6 +1990,24 @@ int main( int argc, char *argv[] )
     else
     {
       fprintf( stdout, "\nSuccessfully installed %d%% of %d specified packages.\n\n", percent, __all );
+    }
+
+    cleanup_pkgrcl(); /* remove successfully installed packages from return status list */
+
+    if( install_mode != CONSOLE )
+    {
+#if defined( HAVE_DIALOG )
+      if( pkgrcl )
+      {
+        ; /* TODO: show the list of not installed packages */
+      }
+#else
+      print_pkgrcl();
+#endif
+    }
+    else
+    {
+      print_pkgrcl();
     }
 
   }
