@@ -25,3 +25,21 @@ Makefile.in
 src/Makefile
 src/Makefile.in
 src/.deps/
+
+#
+# Object files and Binaries:
+# -------------------------
+#
+*.o
+check-db-integrity
+check-package
+check-requires
+chrefs
+install-package
+install-pkglist
+make-package
+make-pkglist
+pkginfo
+pkglog
+remove-package
+update-package

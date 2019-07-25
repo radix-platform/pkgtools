@@ -1879,23 +1879,6 @@ int main( int argc, char *argv[] )
   }
 
 
-
-///////////////////////
-//printf( "\n" );
-//print_packages();
-//printf( "\n" );
-//print_requires();
-///////////////////////
-//printf( "\n" );
-//printf( "---              root='%s'\n", root );
-//printf( "---            srcdir='%s'\n", srcdir );
-//printf( "---     pkglist_fname='%s'\n", pkglist_fname );
-//printf( "\n" );
-//printf( "---      install_mode='%d'\n", install_mode );
-//printf( "---             gpgck='%d'\n", gpgck );
-
-
-
   if( tmpdir ) { _rm_tmpdir( (const char *)tmpdir ); free( tmpdir ); }
   free_resources();
 
