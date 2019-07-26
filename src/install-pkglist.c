@@ -74,7 +74,7 @@ char *program = PROGRAM_NAME;
 char *root = NULL, *srcdir = NULL, *pkglist_fname = NULL,
      *tmpdir = NULL, *curdir = NULL;
 
-int   rqck = 0, gpgck = 0, progress = 0, parallel = 0, ncpus = 0;
+int   rqck = 0, gpgck = 0, progress = 0, parallel = 0, error_pkgs_list = 0, ncpus = 0;
 
 int   exit_status = EXIT_SUCCESS; /* errors counter */
 char *selfdir     = NULL;
@@ -206,6 +206,11 @@ void usage()
 #endif
   fprintf( stdout, "  --parallel                    Parallel installation (dangerous; required the\n" );
   fprintf( stdout, "                                checking of DB integrity after installation).\n" );
+  fprintf( stdout, "  --errlist                     Print the list of not installed packages to the\n" );
+  fprintf( stdout, "                                stderr in following format:\n" );
+  fprintf( stdout, "                                    group/name:version:status\n" );
+  fprintf( stdout, "                                This option is applicable only for parallel\n" );
+  fprintf( stdout, "                                installations.\n" );
   fprintf( stdout, "  --progress                    Show progress bar instead of packages information.\n" );
 
   fprintf( stdout, "  -p,--priority=<required|recommended|optional|all>\n" );
@@ -628,6 +633,7 @@ void get_args( int argc, char *argv[] )
 
 #define PROGRESS 812
 #define PARALLEL 872
+#define _ERRLIST 873
 
   const struct option long_options[] =
   {
@@ -640,6 +646,7 @@ void get_args( int argc, char *argv[] )
     { "menu-dialog",    no_argument,       NULL, 'm' },
 #endif
     { "parallel",       no_argument,       NULL, PARALLEL },
+    { "errlist",        no_argument,       NULL, _ERRLIST },
     { "progress",       no_argument,       NULL, PROGRESS },
     { "priority",       required_argument, NULL, 'p' },
     { "root",           required_argument, NULL, 'r' },
@@ -691,6 +698,11 @@ void get_args( int argc, char *argv[] )
       case PARALLEL:
       {
         parallel = 1;
+        break;
+      }
+      case _ERRLIST:
+      {
+        error_pkgs_list = 1;
         break;
       }
       case PROGRESS:
@@ -1172,43 +1184,22 @@ static void cleanup_pkgrcl( void )
 
 static void _print_pkgrcl( void *data, void *user_data )
 {
-  struct pkgrc *pkgrc  = (struct pkgrc *)data;
-  FILE         *output = (FILE *)user_data;
-
-  if( !output ) output = stdout;
+  struct pkgrc *pkgrc = (struct pkgrc *)data;
 
   if( pkgrc )
   {
     if( pkgrc->group )
-      fprintf( output, "    %5d | %s/%s-%s\n", pkgrc->status, pkgrc->group, pkgrc->name, pkgrc->version );
+      fprintf( stderr, "%s/%s:%s:%d\n", pkgrc->group, pkgrc->name, pkgrc->version, pkgrc->status );
     else
-      fprintf( output, "    %5d | %s-%s\n", pkgrc->status, pkgrc->name, pkgrc->version );
+      fprintf( stderr, "%s:%s:%d\n", pkgrc->name, pkgrc->version, pkgrc->status );
   }
 }
 
-static void print_pkgrcl( FILE *output )
+static void return_codes_list( void )
 {
-  if( !output ) output = stdout;
-
   if( pkgrcl )
   {
-    if( (output != stdout) && (output != stderr) ) fprintf( output, "\n" );
-
-    /*************************************************
-      Ruler: 68 characters + 2 spaces left and right:
-                    | ----handy-ruler----------------------------------------------------- | */
-    fprintf( output, " The install process of following packages has returned bad status:\n\n" );
-
-    fprintf( output, "  --------+-------------------------------------------------------\n" );
-    fprintf( output, "   status | package\n" );
-    fprintf( output, "  --------+-------------------------------------------------------\n" );
-
-    dlist_foreach( pkgrcl, _print_pkgrcl, output );
-
-    fprintf( output, "  --------+-------------------------------------------------------\n\n" );
-
-    fprintf( output, "   status 253 - install process terminated on signal;\n"
-                     "   status 254 - terminated on unknown reason.\n\n" );
+    dlist_foreach( pkgrcl, _print_pkgrcl, NULL );
   }
 }
 /*
@@ -1999,24 +1990,11 @@ int main( int argc, char *argv[] )
       fprintf( stdout, "\nSuccessfully installed %d%% of %d specified packages.\n\n", percent, __all );
     }
 
-    cleanup_pkgrcl(); /* remove successfully installed packages from return status list */
-
-    if( install_mode != CONSOLE )
+    cleanup_pkgrcl();  /* remove successfully installed packages from return codes list */
+    if( pkgrcl && error_pkgs_list )
     {
-#if defined( HAVE_DIALOG )
-      if( pkgrcl )
-      {
-        ; /* TODO: show the list of not installed packages */
-      }
-#else
-      print_pkgrcl( stdout );
-#endif
+      return_codes_list();
     }
-    else
-    {
-      print_pkgrcl( stdout );
-    }
-
   }
   else
   {
