@@ -1172,36 +1172,42 @@ static void cleanup_pkgrcl( void )
 
 static void _print_pkgrcl( void *data, void *user_data )
 {
-  struct pkgrc *pkgrc = (struct pkgrc *)data;
+  struct pkgrc *pkgrc  = (struct pkgrc *)data;
+  FILE         *output = (FILE *)user_data;
+
+  if( !output ) output = stdout;
 
   if( pkgrc )
   {
     if( pkgrc->group )
-      fprintf( stdout, "    %5d | %s/%s-%s\n", pkgrc->status, pkgrc->group, pkgrc->name, pkgrc->version );
+      fprintf( output, "    %5d | %s/%s-%s\n", pkgrc->status, pkgrc->group, pkgrc->name, pkgrc->version );
     else
-      fprintf( stdout, "    %5d | %s-%s\n", pkgrc->status, pkgrc->name, pkgrc->version );
+      fprintf( output, "    %5d | %s-%s\n", pkgrc->status, pkgrc->name, pkgrc->version );
   }
 }
 
-static void print_pkgrcl( void )
+static void print_pkgrcl( FILE *output )
 {
+  if( !output ) output = stdout;
+
   if( pkgrcl )
   {
+    if( (output != stdout) && (output != stderr) ) fprintf( output, "\n" );
+
     /*************************************************
       Ruler: 68 characters + 2 spaces left and right:
-
                     | ----handy-ruler----------------------------------------------------- | */
-    fprintf( stdout, "The install procedure of following packages has returned bad status:\n\n" );
+    fprintf( output, " The install process of following packages has returned bad status:\n\n" );
 
-    fprintf( stdout, "  --------+-------------------------------------------------------\n" );
-    fprintf( stdout, "   status | package\n" );
-    fprintf( stdout, "  --------+-------------------------------------------------------\n" );
+    fprintf( output, "  --------+-------------------------------------------------------\n" );
+    fprintf( output, "   status | package\n" );
+    fprintf( output, "  --------+-------------------------------------------------------\n" );
 
-    dlist_foreach( pkgrcl, _print_pkgrcl, NULL );
+    dlist_foreach( pkgrcl, _print_pkgrcl, output );
 
-    fprintf( stdout, "  --------+-------------------------------------------------------\n\n" );
+    fprintf( output, "  --------+-------------------------------------------------------\n\n" );
 
-    fprintf( stdout, "   status 253 - install process terminated on signal;\n"
+    fprintf( output, "   status 253 - install process terminated on signal;\n"
                      "   status 254 - terminated on unknown reason.\n\n" );
   }
 }
@@ -1981,7 +1987,7 @@ int main( int argc, char *argv[] )
 
       (void)sprintf( msg, "\nSuccessfully installed %d%% of %d specified packages.\n", percent, __all );
 
-      info_box( " \\Z0INSTALL PACKAGES\\Zn ", msg, 5, 0, 0 );
+      (void)info_box( " \\Z0INSTALL PACKAGES\\Zn ", msg, 5, 0, 0 );
 
       free( msg );
 #else
@@ -2003,12 +2009,12 @@ int main( int argc, char *argv[] )
         ; /* TODO: show the list of not installed packages */
       }
 #else
-      print_pkgrcl();
+      print_pkgrcl( stdout );
 #endif
     }
     else
     {
-      print_pkgrcl();
+      print_pkgrcl( stdout );
     }
 
   }
