@@ -129,9 +129,9 @@ CPPFLAGS="${TARGET_INCPATH}"
 The original **dialog** sources have some bugs such as memory leaks and also
 the **dialog** package doesn't have correct autotools scripts. If you want to
 use **libdialog** with **pkgtools** then you have to install the dialog package
-with our [patch](doc/dialog/dialog-1.3-20190728.patch). This patch provides
+with our [patch](doc/dialog/dialog-1.3-20190808.patch). This patch provides
 **dialog.m4** and more convenient **dialog-config** script for
-[dialog-1.3-20190728.tgz](ftp://ftp.invisible-island.net/dialog/dialog-1.3-20190728.tgz)
+[dialog-1.3-20190808.tgz](ftp://ftp.invisible-island.net/dialog/dialog-1.3-20190808.tgz)
 source package.
 
 
