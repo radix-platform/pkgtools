@@ -92,6 +92,19 @@ enum _input_type {
 
 enum _priority priority = REQUIRED;
 
+/***************************************************************
+  Exclude declarations:
+ */
+static struct dlist *exclude = NULL;
+
+static void add_exclude( const char *name );
+static void free_exclude( void );
+
+static void read_exclude_list( const char *optarg );
+/*
+  End of exclude declarstions.
+ ***************************************************************/
+
 
 void free_resources()
 {
@@ -99,6 +112,8 @@ void free_resources()
   if( srcdir )         { free( srcdir );         srcdir         = NULL; }
   if( srcpkg )         { pkg_free( srcpkg );     srcpkg         = NULL; }
   if( pkglist_fname )  { free( pkglist_fname );  pkglist_fname  = NULL; }
+
+  free_exclude();
 
   free_tarballs();
   free_packages();
@@ -125,6 +140,8 @@ void usage()
   fprintf( stdout, "                                file, then the source directory will be represented\n" );
   fprintf( stdout, "                                as the base directory of the source file excluding\n" );
   fprintf( stdout, "                                the group directory if defined.\n" );
+  fprintf( stdout, "  -e,--exclude=<pname|plist>    Ignore package with <pname> or the comma\n" );
+  fprintf( stdout, "                                separated list of package names.\n" );
   fprintf( stdout, "  -i,--iformat=<pkg|log>        Input format: PACKAGEs or PKGLOGs.\n" );
   fprintf( stdout, "  -o,--oformat=<list|json>      Output format: LIST or JSON.\n" );
 
@@ -530,13 +547,14 @@ static enum _input_type check_input_file( char *uncompress, const char *fname )
 
 void get_args( int argc, char *argv[] )
 {
-  const char* short_options = "hvms:o:i:p:w:";
+  const char* short_options = "hvme:s:o:i:p:w:";
 
   const struct option long_options[] =
   {
     { "help",        no_argument,       NULL, 'h' },
     { "version",     no_argument,       NULL, 'v' },
     { "minimize",    no_argument,       NULL, 'm' },
+    { "exclude",     required_argument, NULL, 'e' },
     { "source",      required_argument, NULL, 's' },
     { "oformat",     required_argument, NULL, 'o' },
     { "iformat",     required_argument, NULL, 'i' },
@@ -565,6 +583,18 @@ void get_args( int argc, char *argv[] )
       case 'm':
       {
         minimize = 1;
+        break;
+      }
+
+      case 'e':
+      {
+        if( optarg != NULL )
+        {
+          read_exclude_list( (const char *)optarg );
+        }
+        else
+          /* option is present but without value */
+          usage();
         break;
       }
 
@@ -749,6 +779,77 @@ void get_args( int argc, char *argv[] )
     usage();
   }
 }
+
+
+/***************************************************************
+  Exclude functions:
+ */
+static void add_exclude( const char *name )
+{
+  exclude = dlist_append( exclude, (void *)strdup( name ) );
+}
+
+static void __free_exclude( void *data, void *user_data )
+{
+  if( data ) { free( data ); }
+}
+
+static void free_exclude( void )
+{
+  if( exclude ) { dlist_free( exclude, __free_exclude ); exclude = NULL; }
+}
+
+static int __compare_exclude( const void *a, const void *b )
+{
+  return strncmp( (const char *)a, (const char *)b, (size_t)strlen((const char *)b) );
+}
+
+static const char *find_exclude( const char *name )
+{
+  struct dlist *node = NULL;
+
+  if( !exclude || !name ) return NULL;
+
+  node = dlist_find_data( exclude, __compare_exclude, (const void *)name );
+  if( node )
+  {
+    return (const char *)node->data;
+  }
+
+  return NULL;
+}
+
+static void read_exclude_list( const char *optarg )
+{
+  char *name = NULL, *p = NULL;
+
+  name = p = (char *)optarg;
+
+  if( !p || *p == '\0' ) return;
+
+  while( *p == ',' ) { *p = '\0'; ++p; }
+  name = p;
+
+  while( p && *p != '\0' )
+  {
+    ++p;
+
+    if( *p == ',' )
+    {
+      while( *p == ',' ) { *p = '\0'; ++p; }
+      if( name && *name != '\0' ) { add_exclude( (const char *)name ); }
+      name = p;
+    }
+
+    if( *p == '\0' )
+    {
+      if( name && *name != '\0' ) { add_exclude( (const char *)name ); }
+    }
+  }
+}
+/*
+  End of exclude functions.
+ ***************************************************************/
 
 
 /***************************************************************
@@ -2378,6 +2479,18 @@ static void _read_pkglog( const char *group, const char *fname )
         return;
       }
       package->pkginfo->total_files = (int)files;
+    }
+
+    /* Skip excluded package: */
+    {
+      const char *name = find_exclude( (const char *)package->pkginfo->name );
+
+      if( name && !strcmp( name, package->pkginfo->name ) )
+      {
+        package_free( package );
+        fclose( log );
+        return;
+      }
     }
 
     add_package( package );
