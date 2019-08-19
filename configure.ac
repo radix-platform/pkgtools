@@ -7,7 +7,7 @@ dnl ============================================================
 AC_PREREQ(2.69)dnl        dnl Minimum Autoconf version required.
 
 
-AC_INIT([pkgtools], [0.1.0],
+AC_INIT([pkgtools], [0.1.1],
   [support@radix.pro], [pkgtools], [https://radix.pro])
 
 dnl ============================================================
