@@ -1060,7 +1060,7 @@ static void pre_remove_routine( void )
 
   len = snprintf( &cmd[0], PATH_MAX,
                   "cd %s && %s/.INSTALL pre_remove %s > /dev/null 2>&1",
-                  root, tmpdir, pkgver );
+                  root, rtmpdir, pkgver );
   if( len == 0 || len == PATH_MAX - 1 )
   {
     FATAL_ERROR( "Cannot run pre-remove script for '%s-%s' package", pkgname, pkgver );
@@ -1222,7 +1222,7 @@ static void post_remove_routine( void )
 
   len = snprintf( &cmd[0], PATH_MAX,
                   "cd %s && %s/.INSTALL post_remove %s > /dev/null 2>&1",
-                  root, tmpdir, pkgver );
+                  root, rtmpdir, pkgver );
   if( len == 0 || len == PATH_MAX - 1 )
   {
     FATAL_ERROR( "Cannot run post-remove script for '%s-%s' package", pkgname, pkgver );
@@ -2018,7 +2018,7 @@ static int check_input_package( void )
     bzero( (void *)cmd, PATH_MAX );
 
     len = snprintf( &cmd[0], PATH_MAX,
-                    "%s/pkginfo -d %s -o pkginfo,description,restore-links,filelist %s > /dev/null 2>&1",
+                    "%s/pkginfo -d %s -o pkginfo,description,install-script,restore-links,filelist %s > /dev/null 2>&1",
                     selfdir, tmp, fname );
     if( len == 0 || len == PATH_MAX - 1 )
     {
