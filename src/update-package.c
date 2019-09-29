@@ -1308,7 +1308,7 @@ static void _search_pkglog( const char *dirpath, const char *grp )
             мы пропускаем символ '-', разделяющий имя и версию пакета,
             а затем проверяем начальный символ версии:
            */
-          if( isdigit( *(name + strlen( pkgname ) + 1) ) )
+          if( *(name + strlen( pkgname )) == '-' && isdigit( *(name + strlen( pkgname ) + 1) ) )
           {
             remlog_fname = strdup( (const char *)path );
             closedir( dir );
