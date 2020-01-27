@@ -128,11 +128,11 @@ void usage()
   fprintf( stdout, "stderr and options --root, and --log are ignored.\n" );
   fprintf( stdout, "\n" );
   fprintf( stdout, "By default, the Setup Database is located in the\n" );
-  fprintf( stdout, "  '/var/log/%s/'\n", DISTRO_NAME );
+  fprintf( stdout, "  '/%s/'\n", SETUP_DB_PATH );
   fprintf( stdout, "directory,  the PKGLOGs files of installed packages are located in the\n" );
-  fprintf( stdout, "  '/var/log/%s/packages/'\n", DISTRO_NAME );
+  fprintf( stdout, "  '/%s/'\n", PACKAGES_PATH );
   fprintf( stdout, "directory; the log of this procedure is written to the\n" );
-  fprintf( stdout, "  '/var/log/radix/setup/%s.log'\n", program );
+  fprintf( stdout, "  '/%s/%s.log'\n", LOG_PATH, program );
   fprintf( stdout, "file.\n" );
   fprintf( stdout, "\n" );
 /*
@@ -152,7 +152,7 @@ void usage()
 
    лог записывается в файл
 
-     '/var/log/radix/setup/check-db-integrity.log' .
+     '/var/log/radix/check-db-integrity.log' .
   |==================================================================|
  */
 
