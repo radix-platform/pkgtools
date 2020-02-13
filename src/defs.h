@@ -24,7 +24,7 @@ extern "C" {
 #endif
 
 
-#define SETUP_DB_PATH     "var/log/" DISTRO_NAME
+#define SETUP_DB_PATH     "var/lib/" DISTRO_NAME
 #define PACKAGES_PATH     SETUP_DB_PATH "/packages"
 #define REMOVED_PKGS_PATH SETUP_DB_PATH "/removed-packages"
 #define SETUP_PATH        SETUP_DB_PATH "/setup"
